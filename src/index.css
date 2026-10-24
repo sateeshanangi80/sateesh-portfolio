@@ -1,0 +1,17 @@
+﻿:root {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #202a25;
+  background: #ffffff;
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 32px; background: #ffffff; }
+body { min-width: 320px; min-height: 100vh; background: #ffffff; color: #202a25; line-height: 1.6; }
+button, a, input, textarea { font: inherit; color: inherit; }
+button { background: none; border: none; cursor: pointer; }
+a { text-decoration: none; }
+code, pre { font-family: 'JetBrains Mono', ui-monospace, monospace; }
