@@ -1,0 +1,69 @@
+{
+  "profile": {
+    "name": "Sateesh Anangi",
+    "title": "Frontend Engineer",
+    "specialization": "React | Next.js | TypeScript",
+    "location": "Hyderabad, India",
+    "phone": "+91 7981580629",
+    "email": "sateeshanangi80@gmail.com",
+    "github": "https://github.com/sateeshanangi80",
+    "linkedIn": "https://www.linkedin.com/in/sateesh-anangi-5338b0259",
+    "experience": "3+ years"
+  },
+  "summary": "Frontend Engineer with 3+ years building production React, Next.js, and TypeScript applications. Delivered AI streaming chat, reliable real-time messaging, authentication, payments, and reusable enterprise interfaces. Brings product delivery experience from Figma to production, with hands-on MERN development through ResolveAI.",
+  "skills": [
+    { "label": "Frontend", "items": "React, Next.js, TypeScript, JavaScript (ES6+), HTML, CSS, Tailwind CSS" },
+    { "label": "State & APIs", "items": "Redux Toolkit, Zustand, React Query, REST APIs, Axios, WebSockets, WebRTC" },
+    { "label": "Product & tools", "items": "OTP / SSO, Firebase Cloud Messaging, Razorpay, Git, Figma, Node.js test runner" },
+    { "label": "Hands-on MERN", "items": "Node.js, Express, MongoDB, Mongoose; Vercel and Render deployment" }
+  ],
+  "experience": [
+    {
+      "company": "My Hub Technologies",
+      "role": "Frontend Developer",
+      "period": "Jun 2025 - Present",
+      "location": "Hyderabad, India",
+      "summary": "Production AI product and enterprise administration interfaces.",
+      "highlights": [
+        "Delivered Aavtor AI's React / Next.js frontend for a product serving 1,000+ users, taking features from Figma designs to production.",
+        "Built streaming AI chat with Markdown and code rendering, document uploads, and image-generation progress states.",
+        "Implemented WebSocket messaging with read receipts, heartbeats, reconnect handling, and stale-socket guards for unstable connections.",
+        "Integrated OTP and QR-based SSO, audio/video calling, Firebase web push, and Razorpay subscription checkout and verification APIs.",
+        "Delivered 30+ enterprise CRUD modules with reusable tables, forms, filters, pagination, and role-based access control.",
+        "Added regression tests for WebSocket lifecycle, notification handling, and API contracts; built responsive themes and keyboard-accessible navigation."
+      ],
+      "techStack": ["Next.js", "React", "TypeScript", "Zustand", "WebSockets", "WebRTC", "FCM", "Razorpay"]
+    },
+    {
+      "company": "Yenmin Communications",
+      "role": "Junior Software Developer",
+      "period": "Apr 2023 - Mar 2025",
+      "location": "",
+      "summary": "Responsive React applications, dashboards, and enterprise workflows.",
+      "highlights": [
+        "Built React screens with reusable tables, forms, search filters, and nested routing for enterprise applications.",
+        "Implemented Redux Toolkit state management, Axios token interceptors, centralized API error handling, and Yup validation.",
+        "Translated Figma designs into responsive Tailwind CSS interfaces and collaborated with backend and QA teams on releases."
+      ],
+      "techStack": ["React", "JavaScript", "Redux Toolkit", "Axios", "Tailwind CSS", "REST APIs", "Figma"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "ResolveAI",
+      "type": "Personal MERN project",
+      "url": "https://github.com/sateeshanangi80/resolve-ai",
+      "description": "React / TypeScript support-ticket interface with Node.js, Express, MongoDB, and REST APIs. Python / FastAPI and RAG are planned next."
+    },
+    {
+      "name": "AmogaPay",
+      "type": "Professional fintech project",
+      "url": "https://yenmin.com/studies/amogapay/",
+      "description": "Payment interfaces with OTP / JWT authentication, form validation, and reusable React / Next.js layouts."
+    }
+  ],
+  "education": [
+    { "degree": "M.Sc., Statistics", "institution": "Osmania University, Hyderabad", "year": "2022" },
+    { "degree": "B.Sc., Mathematics, Statistics and Computer Science", "institution": "Kakatiya University", "year": "2017" }
+  ]
+}

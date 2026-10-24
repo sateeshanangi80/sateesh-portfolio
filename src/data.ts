@@ -1,3 +1,7 @@
+import resumeSource from './resume-data.json'
+
+export const resumeData = resumeSource
+
 export type SkillGroup = {
   title: string
   level: 'Production' | 'Hands-on' | 'Building next'
@@ -28,46 +32,47 @@ export type Project = {
 }
 
 export const recruiterSnapshot = {
-  name: 'Sateesh Anangi',
-  role: 'Frontend Engineer → Full-Stack AI Application Engineer',
-  experienceYears: '3+ Years',
-  location: 'Hyderabad, India (Open to Remote & Hybrid)',
-  noticePeriod: 'Available Immediately / Short Notice',
-  email: 'sateeshanangi80@gmail.com',
-  github: 'https://github.com/sateeshanangi80',
-  linkedIn: 'https://www.linkedin.com/in/sateesh-anangi-5338b0259',
+  name: resumeData.profile.name,
+  role: resumeData.profile.title,
+  experienceYears: resumeData.profile.experience,
+  location: resumeData.profile.location,
+  noticePeriod: 'Please contact me to confirm',
+  email: resumeData.profile.email,
+  phone: resumeData.profile.phone,
+  github: resumeData.profile.github,
+  linkedIn: resumeData.profile.linkedIn,
   resumeUrl: '/resume.pdf',
   quickPitch:
-    'Frontend engineer with 3+ years specializing in high-performance React/Next.js, realtime WebSockets, and production AI streaming chat UX. Currently building ResolveAI to bring full-stack MERN, Python/FastAPI, and agentic RAG capabilities to life.',
+    resumeData.summary,
   keyMetrics: [
-    { value: '3+ Years', label: 'Engineering Experience', subtext: 'React, Next.js, TS' },
-    { value: '1,000+', label: 'Active Users Served', subtext: 'On Aavtor AI production' },
-    { value: '30+', label: 'Enterprise Modules', subtext: 'Shipped from Figma to Prod' },
-    { value: '<50ms', label: 'Realtime Latency', subtext: 'Streaming AI & WebSockets' },
+    { value: '3+', label: 'Years of experience', subtext: 'React, Next.js & TypeScript' },
+    { value: '1,000+', label: 'Product users', subtext: 'Aavtor AI' },
+    { value: '30+', label: 'Enterprise modules', subtext: 'Reusable tables, forms & workflows' },
+    { value: 'AI + real-time', label: 'Production interfaces', subtext: 'Streaming chat, messaging & calls' },
   ],
   whyShortlist: [
     {
-      title: 'Proven Production AI UX',
+      title: 'Production AI interfaces',
       description:
-        'Sole frontend owner of Aavtor AI (1K+ users). Designed and implemented real-time streaming AI chat, code syntax highlighting, document upload pipelines, and image-generation tracking.',
+        'Built Aavtor AI web experiences for a product serving 1,000+ users: streaming chat, code rendering, document inputs, and image-generation progress.',
       icon: 'sparkles',
     },
     {
-      title: 'Resilient Realtime Engineering',
+      title: 'Reliable real-time experiences',
       description:
-        'Expert in WebSocket connections with automated heartbeats, exponential backoff reconnects, stale-socket guards, and WebRTC audio/video integration.',
+        'Implemented WebSocket heartbeats, reconnection handling, read receipts, stale-socket guards, and audio/video calling interfaces.',
       icon: 'zap',
     },
     {
-      title: 'Enterprise Architecture & Speed',
+      title: 'Reusable enterprise UI',
       description:
-        'Delivered 30+ enterprise CRUD modules with reusable form architectures, role-based access control (RBAC), and debounced search filters without UI lag.',
+        'Delivered 30+ enterprise modules using shared forms and tables, role-based access, search filters, and pagination.',
       icon: 'shield',
     },
     {
-      title: 'End-to-End Product Ownership',
+      title: 'Product delivery & backend growth',
       description:
-        'Takes features from Figma designs to production deploy. Expanding depth with full-stack MERN, FastAPI, vector embeddings, and autonomous agent workflows.',
+        'Takes features from Figma to production, adds regression tests, and builds hands-on MERN experience through ResolveAI. Python, FastAPI, and RAG are the next milestones.',
       icon: 'layers',
     },
   ],
@@ -136,37 +141,10 @@ export const skillGroups: SkillGroup[] = [
   }
 ]
 
-export const experience = [
-  {
-    company: 'My Hub Technologies',
-    role: 'Frontend Developer',
-    period: 'Jun 2025 — Present',
-    badge: 'Current Role',
-    summary:
-      'Frontend development for Aavtor AI, spanning streaming chat, marketplace discovery, and real-time communication.',
-    highlights: [
-      'Built real-time streaming AI chat interface with Markdown/code syntax rendering, document upload flows, and live image-generation status tracking.',
-      'Architected resilient WebSocket messaging with heartbeat pings, read receipts, auto-reconnect backoff, and stale-socket garbage collection.',
-      'Integrated OTP + QR-based Single Sign-On (SSO), Firebase Cloud Messaging (FCM) web push, WebRTC audio/video calling, and Razorpay subscription flows.',
-      'Delivered 30+ enterprise CRUD modules using modular component patterns, dynamic forms, and role-based access control (RBAC).',
-    ],
-    techStack: ['Next.js', 'React', 'TypeScript', 'Zustand', 'WebSockets', 'WebRTC', 'FCM', 'Razorpay', 'Tailwind CSS'],
-  },
-  {
-    company: 'Yenmin Communications',
-    role: 'Junior Software Developer',
-    period: 'Apr 2023 — Mar 2025',
-    badge: '2 Years',
-    summary:
-      'Built responsive React applications, dashboard interfaces, and enterprise workflows with reusable component design systems.',
-    highlights: [
-      'Developed dynamic data tables, complex forms, search filters, and nested client-side routing using hooks-based React patterns.',
-      'Implemented Redux Toolkit state architecture, Axios interceptors for auth tokens, centralized error handling, and Yup/Zod form validation.',
-      'Converted Figma wireframes and design systems into pixel-perfect, responsive Tailwind CSS layouts across mobile, tablet, and widescreen desktop.',
-    ],
-    techStack: ['React', 'JavaScript ES6+', 'Redux Toolkit', 'Axios', 'Tailwind CSS', 'REST APIs', 'Figma'],
-  },
-]
+export const experience = resumeData.experience.map((job, index) => ({
+  ...job,
+  badge: index === 0 ? 'Current role' : 'Previous role',
+}))
 
 export const projects: Project[] = [
   {
@@ -330,7 +308,7 @@ export const architectureFlow = [
     step: '03',
     name: 'Realtime & Cache',
     tech: 'WebSockets + Redis',
-    role: 'Sub-50ms message delivery, ticket status broadcast, distributed pub/sub event queue.',
+    role: 'Planned ticket-status broadcasts, connection recovery, and distributed pub/sub events.',
     badge: 'Planned',
   },
   {
@@ -344,15 +322,15 @@ export const architectureFlow = [
     step: '05',
     name: 'Knowledge RAG',
     tech: 'ChromaDB + Vector Search',
-    role: 'Knowledge base chunking, semantic retrieval, grounded runbook solutions without hallucination.',
-    badge: 'AI Engine',
+    role: 'Planned document chunking, semantic retrieval, and source-backed runbook suggestions.',
+    badge: 'Planned',
   },
   {
     step: '06',
     name: 'Agentic Workflows',
     tech: 'LangChain / Tool Calling',
     role: 'Autonomous tool execution: re-assign tickets, trigger webhooks, draft resolution with human approval.',
-    badge: 'Autonomous Layer',
+    badge: 'Planned',
   },
 ]
 

@@ -1,0 +1,42 @@
+SATEESH ANANGI
+Frontend Engineer | React | Next.js | TypeScript
+Hyderabad, India | +91 7981580629 | sateeshanangi80@gmail.com
+https://www.linkedin.com/in/sateesh-anangi-5338b0259
+https://github.com/sateeshanangi80
+
+PROFESSIONAL SUMMARY
+Frontend Engineer with 3+ years building production React, Next.js, and TypeScript applications. Delivered AI streaming chat, reliable real-time messaging, authentication, payments, and reusable enterprise interfaces. Brings product delivery experience from Figma to production, with hands-on MERN development through ResolveAI.
+
+TECHNICAL SKILLS
+Frontend: React, Next.js, TypeScript, JavaScript (ES6+), HTML, CSS, Tailwind CSS
+State & APIs: Redux Toolkit, Zustand, React Query, REST APIs, Axios, WebSockets, WebRTC
+Product & tools: OTP / SSO, Firebase Cloud Messaging, Razorpay, Git, Figma, Node.js test runner
+Hands-on MERN: Node.js, Express, MongoDB, Mongoose; Vercel and Render deployment
+
+WORK EXPERIENCE
+Frontend Developer | My Hub Technologies
+Jun 2025 - Present | Hyderabad, India
+- Delivered Aavtor AI's React / Next.js frontend for a product serving 1,000+ users, taking features from Figma designs to production.
+- Built streaming AI chat with Markdown and code rendering, document uploads, and image-generation progress states.
+- Implemented WebSocket messaging with read receipts, heartbeats, reconnect handling, and stale-socket guards for unstable connections.
+- Integrated OTP and QR-based SSO, audio/video calling, Firebase web push, and Razorpay subscription checkout and verification APIs.
+- Delivered 30+ enterprise CRUD modules with reusable tables, forms, filters, pagination, and role-based access control.
+- Added regression tests for WebSocket lifecycle, notification handling, and API contracts; built responsive themes and keyboard-accessible navigation.
+
+Junior Software Developer | Yenmin Communications
+Apr 2023 - Mar 2025
+- Built React screens with reusable tables, forms, search filters, and nested routing for enterprise applications.
+- Implemented Redux Toolkit state management, Axios token interceptors, centralized API error handling, and Yup validation.
+- Translated Figma designs into responsive Tailwind CSS interfaces and collaborated with backend and QA teams on releases.
+
+SELECTED PROJECTS
+ResolveAI | Personal MERN project
+https://github.com/sateeshanangi80/resolve-ai
+React / TypeScript support-ticket interface with Node.js, Express, MongoDB, and REST APIs. Python / FastAPI and RAG are planned next.
+AmogaPay | Professional fintech project
+https://yenmin.com/studies/amogapay/
+Payment interfaces with OTP / JWT authentication, form validation, and reusable React / Next.js layouts.
+
+EDUCATION
+M.Sc., Statistics | Osmania University, Hyderabad | 2022
+B.Sc., Mathematics, Statistics and Computer Science | Kakatiya University | 2017

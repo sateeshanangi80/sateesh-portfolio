@@ -10,7 +10,7 @@ export default function CaseStudyModal({ project, onClose }: Props) {
   if (!project) return null
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="case-study-title">
+    <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-container case-study-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title-wrap">

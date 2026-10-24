@@ -1,42 +1,54 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { experience, projects, recruiterSnapshot, skillGroups } from './data'
 import type { Project } from './data'
 import CaseStudyModal from './components/CaseStudyModal'
+import FeaturedBuild from './components/FeaturedBuild'
 import ProjectVisual from './components/ProjectVisual'
-import CraftLab from './components/CraftLab'
-import { IconArrowUpRight, IconGithub, IconLinkedin, IconMail, IconDownload } from './components/Icons'
+import ResumeDocument from './components/ResumeDocument'
+import { IconArrowUpRight, IconCheck, IconCopy, IconDownload, IconGithub, IconLinkedin, IconMail } from './components/Icons'
 import './App.css'
 import './Portfolio.css'
 import './Mobile.css'
 
+const filters = [['all', 'All work'], ['production', 'Production'], ['fullstack', 'Full-stack'], ['enterprise', 'Enterprise']]
+
 export default function App() {
   const [selected, setSelected] = useState<Project | null>(null)
   const [filter, setFilter] = useState('all')
-  const [featuredIndex, setFeaturedIndex] = useState(0)
-  const [motionPaused, setMotionPaused] = useState(false)
-  const featured = projects[featuredIndex]
-  const trigger = useRef<HTMLElement | null>(null)
-  const dialog = useRef<HTMLDivElement | null>(null)
+  const [motionPaused, setMotionPaused] = useState(() => {
+    try { return localStorage.getItem('portfolio-motion') === 'paused' } catch { return false }
+  })
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [copyStatus, setCopyStatus] = useState('')
+  const dialog = useRef<HTMLDialogElement>(null)
+  const trigger = useRef<HTMLButtonElement | null>(null)
+  const copyTimer = useRef<number | undefined>(undefined)
+  const pause = motionPaused || reducedMotion
+
   useEffect(() => {
-    if (!selected) return
-    const previous = document.body.style.overflow
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const change = () => setReducedMotion(preference.matches)
+    preference.addEventListener('change', change)
+    return () => preference.removeEventListener('change', change)
+  }, [])
+
+  useEffect(() => {
+    if (!selected || !dialog.current) return
+    const element = dialog.current
+    const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const timer = window.setTimeout(() => dialog.current?.querySelector<HTMLButtonElement>('button')?.focus(), 0)
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelected(null)
-      if (event.key === 'Tab') {
-        const items = dialog.current?.querySelectorAll<HTMLElement>('a[href], button, [tabindex="0"]')
-        if (!items?.length) return
-        const first = items[0], last = items[items.length - 1]
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
-      }
+    element.showModal()
+    element.querySelector<HTMLButtonElement>('[aria-label="Close modal"]')?.focus()
+    return () => {
+      element.close()
+      document.body.style.overflow = previousOverflow
+      trigger.current?.focus({ preventScroll: true })
     }
-    window.addEventListener('keydown', onKey)
-    return () => { window.clearTimeout(timer); document.body.style.overflow = previous; window.removeEventListener('keydown', onKey); trigger.current?.focus() }
   }, [selected])
+
   useEffect(() => {
-    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (pause || !('IntersectionObserver' in window)) return
+    const elements = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.entered)')
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -44,57 +56,95 @@ export default function App() {
           observer.unobserve(entry.target)
         }
       })
-    }, { threshold: 0.12 })
-    document.querySelectorAll('[data-reveal]').forEach(element => observer.observe(element))
-    return () => observer.disconnect()
-  }, [filter])
-  return <div className={motionPaused ? 'portfolio motion-paused' : 'portfolio'}>
+    }, { threshold: 0.08 })
+    elements.forEach(element => { element.classList.add('reveal-ready'); observer.observe(element) })
+    return () => { observer.disconnect(); elements.forEach(element => element.classList.remove('reveal-ready')) }
+  }, [filter, pause])
+
+  useEffect(() => () => window.clearTimeout(copyTimer.current), [])
+
+  const openProject = (project: Project, button: HTMLButtonElement) => {
+    trigger.current = button
+    setSelected(project)
+  }
+  const toggleMotion = () => {
+    const next = !motionPaused
+    setMotionPaused(next)
+    try { localStorage.setItem('portfolio-motion', next ? 'paused' : 'on') } catch { /* Motion controls also work without storage. */ }
+  }
+  const copyEmail = async () => {
+    window.clearTimeout(copyTimer.current)
+    try {
+      await navigator.clipboard.writeText(recruiterSnapshot.email)
+      setCopyStatus('Email copied')
+    } catch { setCopyStatus('Copy unavailable. Use the email link below.') }
+    copyTimer.current = window.setTimeout(() => setCopyStatus(''), 4000)
+  }
+
+  return <div className={`portfolio${pause ? ' motion-paused' : ''}`}>
     <a className="skip-link" href="#main">Skip to content</a>
-    <header className="site-header"><nav className="shell site-nav" aria-label="Main navigation">
-      <a className="wordmark" href="#top">Sateesh Anangi<span> / Engineer</span></a>
-      <div className="site-links"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#about">About</a></div>
-      <a className="nav-contact" href={`mailto:${recruiterSnapshot.email}`}>Let’s talk <IconArrowUpRight size={16}/></a>
-    </nav></header>
+    <header className="site-header">
+      <nav className="shell site-nav" aria-label="Main navigation">
+        <a className="wordmark" href="#top" aria-label="Sateesh Anangi, home"><span className="wordmark-symbol" aria-hidden="true">sa<span>.</span></span><span>Sateesh Anangi</span></a>
+        <div className="site-links"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#resume">Resume</a><a href="#about">About</a></div>
+        <a className="nav-contact" href={`mailto:${recruiterSnapshot.email}`}>Let’s talk <IconArrowUpRight size={16}/></a>
+      </nav>
+    </header>
     <main id="main">
-      <section className="shell intro" id="top">
+      <section className="shell intro" id="top" aria-labelledby="hero-title">
         <div className="intro-copy">
-          <span className="open-label"><span/> Available for frontend & full-stack roles</span>
-          <p className="intro-name recruiter-role"><span>Sateesh Anangi</span><span>Frontend & MERN Engineer</span></p>
-          <h1><span className="headline-line">Thoughtful interfaces.</span><span className="headline-line headline-accent">Real products.</span></h1>
-          <p className="intro-description"><strong>3+ years</strong> building React, Next.js, and TypeScript applications—from enterprise dashboards to real-time AI experiences.</p>
-          <div className="intro-buttons"><a className="action-button" href="#work">View projects <IconArrowUpRight size={18}/></a><a className="resume-link" href={recruiterSnapshot.resumeUrl} target="_blank" rel="noreferrer">View resume <IconDownload size={17}/></a></div>
-          <ul className="hero-core-stack" aria-label="Core technologies">{['React', 'Next.js', 'TypeScript', 'Node.js', 'MongoDB'].map(technology => <li key={technology}>{technology}</li>)}</ul>
-          <div className="intro-socials"><span>Based in Hyderabad, India</span><i/><a href={recruiterSnapshot.github} target="_blank" rel="noreferrer" aria-label="GitHub"><IconGithub size={19}/></a><a href={recruiterSnapshot.linkedIn} target="_blank" rel="noreferrer" aria-label="LinkedIn"><IconLinkedin size={19}/></a><a href={`mailto:${recruiterSnapshot.email}`} aria-label="Email Sateesh"><IconMail size={19}/></a></div>
+          <span className="open-label"><span aria-hidden="true"/> Open to frontend opportunities</span>
+          <p className="intro-name">SATEESH ANANGI <span>/ FRONTEND ENGINEER</span></p>
+          <h1 id="hero-title"><span className="headline-line">Good interfaces.</span><span className="headline-line headline-accent">Serious engineering<span className="headline-dot">.</span></span></h1>
+          <p className="intro-description"><strong>3+ years turning complex product ideas into clear, usable web experiences.</strong> I build with React, Next.js, and TypeScript — from real-time AI chat to enterprise dashboards.</p>
+          <div className="intro-buttons">
+            <a className="action-button" href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf"><IconDownload size={17}/> Download resume <span className="button-format">PDF</span></a>
+            <a className="text-button" href="#work">Explore my work <IconArrowUpRight size={18}/></a>
+          </div>
+          <ul className="hero-core-stack" aria-label="Production frontend skills">{['React', 'Next.js', 'TypeScript', 'WebSockets'].map(tech => <li key={tech}>{tech}</li>)}</ul>
+          <div className="intro-socials"><span>Hyderabad, India <span aria-hidden="true">↗</span> Remote / hybrid</span><div><a href={recruiterSnapshot.github} target="_blank" rel="noreferrer" aria-label="Sateesh on GitHub"><IconGithub size={18}/></a><a href={recruiterSnapshot.linkedIn} target="_blank" rel="noreferrer" aria-label="Sateesh on LinkedIn"><IconLinkedin size={18}/></a><a href={`mailto:${recruiterSnapshot.email}`} aria-label="Email Sateesh"><IconMail size={18}/></a></div></div>
         </div>
-        <div className="hero-evidence">
-          <CraftLab/>
-          <button className="hero-production-link" onClick={event => { trigger.current = event.currentTarget; setSelected(projects[0]) }}>
-            <span className="production-monogram" aria-hidden="true">a</span>
-            <span><strong>Aavtor AI</strong><span>Production frontend work</span></span>
-            <IconArrowUpRight size={19}/>
-          </button>
-        </div>
-        <a className="hero-scroll-cue" href="#work"><span>Selected work below</span><span aria-hidden="true">↓</span></a>
+        <div className="hero-evidence"><FeaturedBuild onOpenProject={openProject}/><p className="hero-evidence-note"><span aria-hidden="true">↳</span> A little of what I build. A lot of attention to detail.</p></div>
+        <div className="hero-bottom"><a href="#overview">The quick introduction <span aria-hidden="true">↓</span></a><button className="motion-toggle" onClick={toggleMotion} aria-pressed={pause} disabled={reducedMotion}>{reducedMotion ? 'Reduced motion enabled' : motionPaused ? 'Enable animations' : 'Pause animations'} <span aria-hidden="true">{pause ? '▷' : 'Ⅱ'}</span></button></div>
       </section>
-      <div className="craft-strip"><div className="shell craft-strip-heading"><span>FRONTEND CRAFT. FULL-STACK THINKING. AI CURIOSITY.</span><button onClick={() => setMotionPaused(paused => !paused)} aria-pressed={motionPaused}>{motionPaused ? 'Resume motion' : 'Pause motion'} <span aria-hidden="true">{motionPaused ? '▷' : 'Ⅱ'}</span></button></div><div className="craft-track" aria-label="React, Next.js, TypeScript, MERN, AI interfaces"><div className="craft-track-inner" aria-hidden="true">{[0,1].map(copy => <div className="craft-track-copy" key={copy}>{['React', 'Next.js', 'TypeScript', 'MERN', 'AI interfaces'].map(skill=><span key={skill}>{skill}<i>/</i></span>)}</div>)}</div></div></div>
-      <div className="shell proof-row"><div><strong>3+<span> years</span></strong><span>Building web products</span></div><div><strong>Real-time</strong><span>Chat & real-time interfaces</span></div><div><strong>30+</strong><span>Enterprise modules delivered</span></div><p>From the first interaction<br/>to the details that hold up.</p></div>
-      <section className="shell work-section" id="work"><div className="section-heading"><div><p className="eyebrow">SELECTED WORK / 01</p><h2>Selected projects.</h2></div><p>Professional products and independent work.</p></div>
-                <aside className="hero-work project-spotlight" aria-label="Featured projects">
-          <div className="hero-work-heading"><span>A FEW THINGS I HAVE BUILT</span><span>0{featuredIndex + 1} / 04</span></div>
-          <button className="hero-project" onClick={event => { trigger.current = event.currentTarget; setSelected(featured) }} aria-label={`Read ${featured.title} case study`}>
-            <div className="showcase-visual" key={featured.id}><ProjectVisual id={featured.id}/></div>
-            <span className="showcase-view">View project <IconArrowUpRight size={16}/></span>
-          </button>
-          <div className="hero-project-caption" aria-live="polite"><div><span>{featured.category === 'fullstack' ? 'INDEPENDENT / MERN + AI ROADMAP' : 'PROFESSIONAL WORK'}</span><h2>{featured.title}</h2></div><a href={featured.live} target="_blank" rel="noreferrer" aria-label={`Open ${featured.title} ${featured.liveLabel || 'live site'}`}><IconArrowUpRight size={23}/></a></div>
-          <div className="showcase-controls" aria-label="Choose featured project">{projects.map((project, index) => <button key={project.id} aria-pressed={featuredIndex === index} onClick={() => setFeaturedIndex(index)}><span>0{index+1}</span>{project.title}</button>)}</div>
-        </aside>
-        <div className="work-filters" aria-label="Filter projects">{[['all','All work'],['production','Production'],['fullstack','Full-stack & AI'],['enterprise','Enterprise']].map(([key,label])=><button key={key} aria-pressed={filter===key} className={filter===key?'selected':''} onClick={()=>setFilter(key)}>{label}</button>)}</div>
-        <div className="work-grid">{projects.filter(p=>filter==='all'||p.category===filter).map((project,index)=><article data-reveal className={`work-card project-${project.id}`} key={project.id}><button className="work-art" onClick={e=>{trigger.current=e.currentTarget;setSelected(project)}} aria-label={`Read ${project.title} case study`}><ProjectVisual id={project.id}/><span className="art-label">{project.category==='fullstack'?'INDEPENDENT PROJECT':project.category==='production'?'PRODUCTION':'PROFESSIONAL WORK'}</span><span className="art-index">0{index+1}</span><span className="project-hover-label">Read the story <IconArrowUpRight size={17}/></span></button><div className="work-info"><h3>{project.title}</h3><p>{project.description}</p><div className="work-tech">{project.current.slice(0,3).map(tech=><span key={tech}>{tech}</span>)}</div><div className="work-links"><button onClick={e=>{trigger.current=e.currentTarget;setSelected(project)}}>Read case study <IconArrowUpRight size={15}/></button>{project.live&&<a href={project.live} target="_blank" rel="noreferrer">{project.liveLabel || 'Live site'} ↗</a>}{project.github&&<a href={project.github} target="_blank" rel="noreferrer">Source code ↗</a>}</div></div></article>)}</div>
+
+      <section className="proof-band" aria-label="Experience at a glance"><div className="shell proof-row">
+        {recruiterSnapshot.keyMetrics.map(metric => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}
+      </div></section>
+
+      <section className="shell recruiter-overview section-space" id="overview" aria-labelledby="overview-title">
+        <div className="section-heading"><div><p className="eyebrow">01 / THE QUICK INTRODUCTION</p><h2 id="overview-title">The experience behind the interface.</h2></div><p>Production frontend depth.<br/>Full-stack curiosity. Product ownership.</p></div>
+        <div className="capability-grid">{[
+          { index: '01', title: 'AI products people can use.', text: 'Streaming responses, Markdown and code, document inputs, and generation progress. Frontend integrations that make complex AI workflows understandable.', tags: ['Aavtor AI', 'Production'] },
+          { index: '02', title: 'Real-time, without the friction.', text: 'WebSocket messaging with reconnect handling and read receipts, WebRTC calling interfaces, and web push notifications. Built for the states between the happy paths.', tags: ['WebSockets', 'WebRTC', 'FCM'] },
+          { index: '03', title: 'Built once. Used across products.', text: '30+ enterprise modules using reusable tables and forms, search, filtering, pagination, and role-based access. From Figma designs through API integration.', tags: ['Reusable UI', 'Enterprise workflows'] },
+        ].map(item => <article className="capability" data-reveal key={item.index}><span className="capability-index">{item.index} <span aria-hidden="true">↗</span></span><h3>{item.title}</h3><p>{item.text}</p><div className="capability-tags">{item.tags.map(tag => <span key={tag}>{tag}</span>)}</div></article>)}</div>
       </section>
-      <section className="shell experience-section" id="experience"><div className="section-heading"><div><p className="eyebrow">EXPERIENCE / 02</p><h2>From design to shipped.</h2></div><a className="resume-link" href={recruiterSnapshot.resumeUrl} target="_blank" rel="noreferrer">Full resume <IconArrowUpRight size={17}/></a></div>{experience.map(job=><article data-reveal className="experience-row" key={job.company}><span className="job-period">{job.period}</span><div><h3>{job.role}</h3><span className="job-company">{job.company}</span><p>{job.summary}</p><div className="work-tech">{job.techStack.slice(0,4).map(tech=><span key={tech}>{tech}</span>)}</div></div></article>)}</section>
-      <section data-reveal className="shell about-section" id="about"><div><p className="eyebrow">A LITTLE ABOUT ME / 03</p><h2>An engineer with<br/><span>a product mindset.</span></h2><p>I turn complex workflows into interfaces that feel simple. My work spans AI chat, real-time communication, and enterprise dashboards.</p><p>Frontend is my core. ResolveAI brings together MongoDB, Express, React, and Node.js. Next: Python, FastAPI, RAG, and AI agents.</p></div><div className="skill-list">{skillGroups.map(group=><div key={group.title}><div className="skill-heading"><h3>{group.title}</h3><span>{group.level==='Production'?'Production':group.level==='Hands-on'?'Hands-on':'Planned / learning'}</span></div><p>{group.description}</p><p>{group.skills.join(' · ')}</p></div>)}</div></section>
-      <section data-reveal className="shell contact-section"><p className="eyebrow">HAVE A ROLE IN MIND?</p><h2>Have something<br/><span>in mind?</span></h2><a className="contact-orbit" href={`mailto:${recruiterSnapshot.email}`} aria-label="Email Sateesh to discuss an opportunity"><svg className="contact-ring" viewBox="0 0 160 160" aria-hidden="true"><defs><path id="contact-circle" d="M80,80 m-59,0 a59,59 0 1,1 118,0 a59,59 0 1,1 -118,0"/></defs><text><textPath href="#contact-circle" textLength="370">LET’S TALK / LET’S BUILD / LET’S TALK / </textPath></text></svg><IconArrowUpRight size={38}/></a><a className="contact-email" href={`mailto:${recruiterSnapshot.email}`}>{recruiterSnapshot.email}</a><div className="contact-socials"><a href={recruiterSnapshot.linkedIn} target="_blank" rel="noreferrer">LinkedIn <IconArrowUpRight size={14}/></a><a href={recruiterSnapshot.github} target="_blank" rel="noreferrer">GitHub <IconArrowUpRight size={14}/></a></div></section>
-    </main><footer className="shell site-footer"><span>© {new Date().getFullYear()} Sateesh Anangi</span><span>Built with React. Made with care.</span><a href="#top">Back to top ↑</a></footer>
-    <div ref={dialog}><CaseStudyModal project={selected} onClose={()=>setSelected(null)}/></div>
+
+      <section className="shell work-section section-space" id="work" aria-labelledby="work-title">
+        <div className="section-heading"><div><p className="eyebrow">02 / SELECTED WORK</p><h2 id="work-title">Less talk. More shipped.</h2></div><p>A closer look at the products,<br/>the problems, and my contribution.</p></div>
+        <div className="work-filters" aria-label="Filter projects">{filters.map(([key, label]) => <button key={key} aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}{key === 'all' && <span>{projects.length.toString().padStart(2, '0')}</span>}</button>)}</div>
+        <div className="work-grid">{projects.filter(project => filter === 'all' || project.category === filter).map((project, index) => <article className={`work-card project-${project.id}`} key={project.id} data-reveal>
+          <button className="work-art" onClick={event => openProject(project, event.currentTarget)} aria-label={`Read ${project.title} case study`}><ProjectVisual id={project.id}/><span className="art-label">{project.category === 'fullstack' ? 'PERSONAL / IN DEVELOPMENT' : 'PROFESSIONAL WORK'}</span><span className="art-index">0{index + 1}</span><span className="project-hover-label">Inside the project <IconArrowUpRight size={16}/></span></button>
+          <div className="work-info"><div className="project-title-row"><h3>{project.title}</h3><span className="project-status">{project.category === 'fullstack' ? 'MERN · Hands-on' : project.category === 'enterprise' ? 'Fintech' : 'Production'}</span></div><p>{project.description}</p><div className="work-tech">{project.current.slice(0, 4).map(tech => <span key={tech}>{tech}</span>)}</div><div className="work-links"><button onClick={event => openProject(project, event.currentTarget)}>Read case study <IconArrowUpRight size={15}/></button><div>{project.live && <a href={project.live} target="_blank" rel="noreferrer">{project.liveLabel || 'Live site'} <IconArrowUpRight size={14}/></a>}{project.github && <a href={project.github} target="_blank" rel="noreferrer" aria-label={`${project.title} source code on GitHub`}><IconGithub size={16}/> Code</a>}</div></div></div>
+        </article>)}</div>
+      </section>
+
+      <section className="shell experience-section section-space" id="experience" aria-labelledby="experience-title">
+        <div className="section-heading"><div><p className="eyebrow">03 / EXPERIENCE</p><h2 id="experience-title">From design to production.</h2></div><a className="text-button" href="#resume">Read the full resume <IconArrowUpRight size={16}/></a></div>
+        <div className="experience-timeline">{experience.map((job, index) => <article className="experience-row" key={job.company} data-reveal><div className="experience-meta"><span className="job-number">0{index + 1}</span><span className="job-period">{job.period}</span>{index === 0 && <span className="current-role"><span aria-hidden="true"/> Current role</span>}</div><div className="experience-detail"><h3>{job.role}</h3><span className="job-company">{job.company}</span><p>{job.summary}</p><ul className="experience-highlights">{job.highlights.map(item => <li key={item}>{item}</li>)}</ul><div className="work-tech">{job.techStack.map(tech => <span key={tech}>{tech}</span>)}</div></div></article>)}</div>
+      </section>
+
+      <section className="resume-section-wrap" id="resume" aria-labelledby="resume-section-title"><div className="shell section-space">
+        <div className="section-heading"><div><p className="eyebrow">04 / THE RESUME</p><h2 id="resume-section-title">Everything in one place.</h2></div><p>The details, ready for your next step.</p></div>
+        <div className="resume-layout"><aside className="resume-sidebar"><span className="resume-file-icon" aria-hidden="true">SA<span>.pdf</span></span><h3>A quick read.<br/> A clear picture.</h3><p>Experience, technical skills, selected projects, and education in a clean, single-column document.</p><a className="action-button" href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf"><IconDownload size={16}/> Download PDF</a><a className="text-button" href="/resume.txt" download="Sateesh-Anangi-Resume.txt">Plain text version <IconArrowUpRight size={15}/></a><a className="text-button" href={recruiterSnapshot.resumeUrl} target="_blank" rel="noreferrer">Open PDF in a new tab <IconArrowUpRight size={15}/></a><div className="resume-sidebar-note"><IconCheck size={16}/><p>Selectable text. Standard headings.<br/>Easy to read, save, and share.</p></div></aside><div className="resume-paper"><div className="resume-paper-topline"><span>RESUME / SATEESH ANANGI</span><span aria-hidden="true">↗</span></div><ResumeDocument/></div></div>
+      </div></section>
+
+      <section className="shell about-section section-space" id="about" aria-labelledby="about-title"><div className="about-copy"><p className="eyebrow">05 / ALWAYS BUILDING</p><h2 id="about-title">Frontend is my core.<br/><span>Curiosity keeps it moving.</span></h2><p>I enjoy the point where engineering meets the person using the product: a response that arrives clearly, a form that explains itself, a complicated workflow that finally feels simple.</p><p>My professional work is frontend engineering. With ResolveAI, I’m building hands-on experience across MongoDB, Express, React, and Node.js. Python, FastAPI, RAG, and AI agents are the next steps.</p><a className="text-button" href={recruiterSnapshot.github} target="_blank" rel="noreferrer">Follow what I’m building <IconGithub size={17}/></a></div><div className="skill-list">{skillGroups.map(group => <article key={group.title}><div className="skill-heading"><h3>{group.title}</h3><span className={`skill-level level-${group.level.toLowerCase().replace(' ', '-')}`}>{group.level === 'Building next' ? 'Planned / learning' : group.level}</span></div><p>{group.description}</p><ul>{group.skills.map(skill => <li key={skill}>{skill}</li>)}</ul></article>)}</div></section>
+
+      <section className="shell contact-section" id="contact" aria-labelledby="contact-title" data-reveal><div><p className="eyebrow">LET’S BUILD SOMETHING USEFUL.</p><h2 id="contact-title">Your next frontend<br/>engineer<span>?</span></h2><p>Hiring for React, Next.js, or TypeScript?<br/>I’d love to hear about the team and the challenge.</p><div className="contact-actions"><a className="action-button" href={`mailto:${recruiterSnapshot.email}?subject=Frontend%20Engineering%20Opportunity`}>Let’s talk <IconArrowUpRight size={18}/></a><a className="text-button" href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf">Get my resume <IconDownload size={16}/></a></div></div><div className="contact-details"><span className="contact-location">HYDERABAD, INDIA / OPEN TO REMOTE</span><a className="contact-email" href={`mailto:${recruiterSnapshot.email}`}>{recruiterSnapshot.email}</a><button className="copy-email" onClick={copyEmail}>{copyStatus === 'Email copied' ? <IconCheck size={14}/> : <IconCopy size={14}/>} Copy email</button><span className="copy-status" role="status" aria-live="polite">{copyStatus}</span><div className="contact-socials"><a href={recruiterSnapshot.linkedIn} target="_blank" rel="noreferrer">LinkedIn <IconArrowUpRight size={15}/></a><a href={recruiterSnapshot.github} target="_blank" rel="noreferrer">GitHub <IconArrowUpRight size={15}/></a></div></div></section>
+    </main>
+    <footer className="shell site-footer"><span>© {new Date().getFullYear()} Sateesh Anangi</span><span>Designed with intent. Built with React.</span><a href="#top">Back to top ↑</a></footer>
+    <dialog className="project-dialog" ref={dialog} aria-labelledby="case-study-title" onCancel={() => setSelected(null)}><CaseStudyModal project={selected} onClose={() => setSelected(null)}/></dialog>
   </div>
 }

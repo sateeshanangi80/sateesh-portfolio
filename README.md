@@ -51,7 +51,13 @@ Update that file when you:
 - add another project,
 - change your role or experience.
 
-The main hero/contact content lives in:
+The resume facts, experience, education, and contact details share:
+
+```text
+src/resume-data.json
+```
+
+The main hero/contact layout lives in:
 
 ```text
 src/App.tsx
@@ -65,7 +71,24 @@ The current resume is stored as:
 public/resume.pdf
 ```
 
-Replace that file with a newer PDF later and the Resume buttons will automatically serve the new version.
+The page preview and downloadable resume use the same JSON source. After editing `src/resume-data.json`, regenerate both the PDF and plain-text download:
+
+```powershell
+python -m pip install -r scripts/requirements-resume.txt
+python scripts/generate-resume.py
+```
+
+This updates `public/resume.pdf`, `public/resume.txt`, and the final deliverable at `output/pdf/Sateesh-Anangi-Frontend-Engineer-Resume.pdf`. Keep these generated files synchronized with content changes.
+
+The portfolio uses brief entrance animations and interactive project previews. The pause control persists locally and operating system reduced-motion preferences are respected. Project case studies use a native dialog for keyboard containment and Escape dismissal.
+
+For application targeting and the research behind these changes, see [RECRUITER-STRATEGY.md](RECRUITER-STRATEGY.md).
+
+## Sharing assets
+
+`public/favicon.svg` and `public/social-preview.png` supply the monogram and sharing card. To regenerate the card, install Pillow (`python -m pip install Pillow`) and run `python scripts/generate-social-preview.py`.
+
+After choosing the public domain, replace the relative social-image paths in `index.html` with absolute URLs and add the canonical URL. Verify the deployed sharing preview on the actual destination platform. No deployment is performed by the local build.
 
 ## Suggested future updates
 
