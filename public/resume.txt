@@ -23,7 +23,7 @@ Jun 2025 - Present | Hyderabad, India
 - Delivered 30+ enterprise CRUD modules with reusable tables, forms, filters, pagination, and role-based access control.
 - Added regression tests for WebSocket lifecycle, notification handling, and API contracts; built responsive themes and keyboard-accessible navigation.
 
-Junior Software Developer | Yenmin Communications
+Software Developer | Yenmin Communications
 Apr 2023 - Mar 2025
 - Built React screens with reusable tables, forms, search filters, and nested routing for enterprise applications.
 - Implemented Redux Toolkit state management, Axios token interceptors, centralized API error handling, and Yup validation.
