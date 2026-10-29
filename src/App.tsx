@@ -1,150 +1,130 @@
 import { useEffect, useRef, useState } from 'react'
-import { experience, projects, recruiterSnapshot, skillGroups } from './data'
+import { projects, recruiterSnapshot } from './data'
 import type { Project } from './data'
 import CaseStudyModal from './components/CaseStudyModal'
-import FeaturedBuild from './components/FeaturedBuild'
-import ProjectVisual from './components/ProjectVisual'
-import ResumeDocument from './components/ResumeDocument'
-import { IconArrowUpRight, IconCheck, IconCopy, IconDownload, IconGithub, IconLinkedin, IconMail } from './components/Icons'
 import './App.css'
-import './Portfolio.css'
-import './Mobile.css'
-
-const filters = [['all', 'All work'], ['production', 'Production'], ['fullstack', 'Full-stack'], ['enterprise', 'Enterprise']]
+import './Design.css'
 
 export default function App() {
-  const [selected, setSelected] = useState<Project | null>(null)
-  const [filter, setFilter] = useState('all')
-  const [motionPaused, setMotionPaused] = useState(() => {
-    try { return localStorage.getItem('portfolio-motion') === 'paused' } catch { return false }
-  })
-  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  const [copyStatus, setCopyStatus] = useState('')
-  const dialog = useRef<HTMLDialogElement>(null)
-  const trigger = useRef<HTMLButtonElement | null>(null)
-  const copyTimer = useRef<number | undefined>(undefined)
-  const pause = motionPaused || reducedMotion
+ const [selected, setSelected] = useState<Project | null>(null)
+ const dialog = useRef<HTMLDialogElement>(null)
+ const header = useRef<HTMLElement>(null)
+ useEffect(() => {
+  if (!header.current) return
+  const update = () => document.documentElement.style.setProperty('--header-height', `${header.current?.offsetHeight ?? 80}px`)
+  update()
+  const observer = new ResizeObserver(update)
+  observer.observe(header.current)
+  return () => { observer.disconnect(); document.documentElement.style.removeProperty('--header-height') }
+ }, [])
+ useEffect(() => {
+  if (!selected || !dialog.current) return
+  const el = dialog.current
+  const active = document.activeElement as HTMLElement | null
+  const overflow = document.body.style.overflow
+  document.body.style.overflow = 'hidden'
+  el.showModal()
+  return () => { el.close(); document.body.style.overflow = overflow; active?.focus() }
+ }, [selected])
+ return <><a className="skip-link" href="#main">Skip to content</a><div style={{"fontFamily": "'Inter',system-ui,sans-serif", "color": "#12111A", "background": "#FAFAFC", "lineHeight": "1.6", "position": "relative", "overflow": "hidden"}}>
+<div style={{"position": "absolute", "top": "-260px", "right": "-120px", "width": "760px", "height": "760px", "background": "radial-gradient(closest-side,rgba(100,70,240,.16),transparent)"}}></div>
 
-  useEffect(() => {
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const change = () => setReducedMotion(preference.matches)
-    preference.addEventListener('change', change)
-    return () => preference.removeEventListener('change', change)
-  }, [])
+<header ref={header} className="fixed-header" style={{"position": "relative", "maxWidth": "1320px", "margin": "0 auto", "padding": "22px 32px", "display": "flex", "alignItems": "center", "justifyContent": "space-between", "flexWrap": "wrap", "gap": "16px"}}>
+<a href="#top" style={{"fontWeight": "700", "fontSize": "17px", "letterSpacing": "-0.02em"}}>Sateesh Anangi</a>
+<nav style={{"display": "flex", "alignItems": "center", "gap": "26px", "fontSize": "14px", "color": "#565268", "fontWeight": "500"}}><a className="lnk" href="#work">Frontend</a><a className="lnk" href="#fullstack">Full-stack and AI</a><a className="lnk" href="#experience">Experience</a><a className="lnk" href="#skills">Skills</a><a href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf" className="btn" style={{"minHeight": "40px", "background": "#12111A", "color": "#fff", "fontSize": "14px"}}>Resume ↓</a></nav>
+</header><main id="main">
 
-  useEffect(() => {
-    if (!selected || !dialog.current) return
-    const element = dialog.current
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    element.showModal()
-    element.querySelector<HTMLButtonElement>('[aria-label="Close modal"]')?.focus()
-    return () => {
-      element.close()
-      document.body.style.overflow = previousOverflow
-      trigger.current?.focus({ preventScroll: true })
-    }
-  }, [selected])
+<section className="hero" id="top" style={{"position": "relative", "maxWidth": "1320px", "margin": "0 auto", "padding": "48px 32px 72px", "display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(360px,1fr))", "gap": "56px", "alignItems": "start"}}>
+<div>
+<div style={{"display": "inline-flex", "alignItems": "center", "gap": "10px", "fontSize": "13px", "color": "#565268", "fontWeight": "500"}}><span style={{"width": "8px", "height": "8px", "borderRadius": "50%", "background": "#1A8F5B"}}></span>Open to roles · Hyderabad, India · Remote / Hybrid</div>
+<div style={{"display": "flex", "gap": "8px", "flexWrap": "wrap", "marginTop": "20px"}}><span className="role">Frontend Engineer</span><span className="role">Full-Stack (MERN) Developer</span><span className="role" style={{"borderStyle": "dashed", "color": "#565268"}}>Applied AI (building)</span></div>
+<h1 style={{"fontSize": "58px", "lineHeight": "1.05", "marginTop": "24px"}}>Frontend-first engineer building full-stack products and <span style={{"color": "#4F36D1"}}>AI-powered interfaces.</span></h1>
+<p style={{"fontSize": "18px", "color": "#565268", "maxWidth": "540px", "margin": "24px 0 0"}}>3+ years shipping React, Next.js and TypeScript to 1,000+ users. Extending into Node.js, MongoDB and applied AI through ResolveAI, an AI-assisted support platform.</p>
+<div style={{"display": "flex", "gap": "12px", "flexWrap": "wrap", "marginTop": "32px"}}><a href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf" className="btn" style={{"background": "#4F36D1", "color": "#fff"}}>Download resume</a><a href="#fullstack" className="btn" style={{"border": "1px solid #D4D1E3", "background": "#fff"}}>See full-stack and AI work →</a></div>
+<div style={{"display": "flex", "gap": "24px", "flexWrap": "wrap", "marginTop": "24px", "fontSize": "14px", "fontWeight": "600", "color": "#565268"}}><a className="lnk" href="#contact">Email</a><a className="lnk" href="#contact">LinkedIn</a><a className="lnk" href="#contact">GitHub</a></div>
+</div>
+<div className="card" style={{"padding": "28px", "boxShadow": "0 30px 60px -36px rgba(60,40,160,.4)"}}>
+<div className="eyebrow">At a glance</div>
+<div className="row" style={{"borderTop": "0", "marginTop": "6px"}}><span style={{"color": "#565268", "fontSize": "14px"}}>Production</span><span style={{"fontWeight": "500"}}>React, Next.js, TypeScript, streaming AI chat, WebSockets, WebRTC</span></div>
+<div className="row"><span style={{"color": "#565268", "fontSize": "14px"}}>Full-stack</span><span style={{"fontWeight": "500"}}>Node.js, Express, MongoDB with Mongoose</span></div>
+<div className="row"><span style={{"color": "#565268", "fontSize": "14px"}}>AI engineering</span><span style={{"fontWeight": "500"}}>Building: Python, FastAPI, LLM APIs, RAG, tool calling</span></div>
+<div className="row"><span style={{"color": "#565268", "fontSize": "14px"}}>Currently</span><span style={{"fontWeight": "500"}}>Frontend Developer, My Hub Technologies</span></div>
+<div style={{"display": "grid", "gridTemplateColumns": "repeat(3,1fr)", "gap": "12px", "paddingTop": "20px", "borderTop": "1px solid #ECEAF3"}}><div><div style={{"fontSize": "30px", "fontWeight": "700", "letterSpacing": "-0.03em", "lineHeight": "1"}}>3+</div><div style={{"fontSize": "12px", "color": "#565268"}}>Years</div></div><div><div style={{"fontSize": "30px", "fontWeight": "700", "letterSpacing": "-0.03em", "lineHeight": "1"}}>1,000+</div><div style={{"fontSize": "12px", "color": "#565268"}}>Product users</div></div><div><div style={{"fontSize": "30px", "fontWeight": "700", "letterSpacing": "-0.03em", "lineHeight": "1"}}>30+</div><div style={{"fontSize": "12px", "color": "#565268"}}>Enterprise modules</div></div></div>
+</div>
+</section>
 
-  useEffect(() => {
-    if (pause || !('IntersectionObserver' in window)) return
-    const elements = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.entered)')
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('entered')
-          observer.unobserve(entry.target)
-        }
-      })
-    }, { threshold: 0.08 })
-    elements.forEach(element => { element.classList.add('reveal-ready'); observer.observe(element) })
-    return () => { observer.disconnect(); elements.forEach(element => element.classList.remove('reveal-ready')) }
-  }, [filter, pause])
+<section id="work" style={{"position": "relative", "maxWidth": "1320px", "margin": "0 auto", "padding": "48px 32px 24px"}}>
+<div className="eyebrow">Production frontend · Case study</div>
+<h2 style={{"fontSize": "40px", "lineHeight": "1.1", "marginTop": "12px"}}>Aavtar AI: a conversational multi-agent marketplace assistant</h2>
+<div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(380px,1fr))", "gap": "40px", "marginTop": "36px", "alignItems": "start"}}>
+<div className="card" style={{"overflow": "hidden", "boxShadow": "0 30px 60px -36px rgba(60,40,160,.4)"}}><div className="bar"><span className="dot"></span><span className="dot"></span><span className="dot"></span><span className="mono" style={{"marginLeft": "12px", "fontSize": "12px", "color": "#7B7790"}}>Aavtar AI</span></div>
+<div style={{"display": "grid", "gridTemplateColumns": "64px 1fr", "minHeight": "360px"}}><div style={{"borderRight": "1px solid #ECEAF3", "background": "#FBFBFE", "padding": "18px 14px", "display": "flex", "flexDirection": "column", "gap": "12px"}}><div className="ph" style={{"height": "28px", "borderRadius": "8px"}}></div><div className="ph" style={{"height": "28px", "borderRadius": "8px"}}></div><div className="ph" style={{"height": "28px", "borderRadius": "8px"}}></div></div>
+<div style={{"padding": "24px", "display": "flex", "flexDirection": "column", "gap": "12px", "background": "linear-gradient(180deg,#F4F1FF,#fff)"}}><div style={{"alignSelf": "flex-end", "maxWidth": "80%", "background": "#4F36D1", "color": "#fff", "padding": "11px 15px", "borderRadius": "14px 14px 4px 14px", "fontSize": "14px"}}>Find a verified designer for a landing page</div><div style={{"maxWidth": "88%", "background": "#fff", "border": "1px solid #E3E1EC", "padding": "13px 15px", "borderRadius": "14px 14px 14px 4px", "fontSize": "14px"}}>Searching marketplace agents. I found three matching profiles.</div><div style={{"display": "flex", "gap": "8px", "flexWrap": "wrap"}}><span className="tag">Streaming</span><span className="tag">Markdown + code</span><span className="tag">Uploads</span></div><div style={{"marginTop": "auto", "border": "1px solid #E3E1EC", "borderRadius": "12px", "padding": "11px 14px", "background": "#fff", "fontSize": "13px", "color": "#7B7790"}}>Ask anything…</div></div></div></div>
+<div>
+<div className="row" style={{"borderTop": "0", "paddingTop": "0"}}><b>Problem</b><span style={{"color": "#3A3750"}}>One conversational interface over a multi-agent marketplace, with streamed AI answers, live messaging and calls.</span></div>
+<div className="row"><b>My role</b><span style={{"color": "#3A3750"}}>Frontend developer. Delivered the web frontend and integrations from Figma designs to production.</span></div>
+<div className="row"><b>Decisions</b><span style={{"color": "#3A3750"}}>Streaming chat with Markdown, code and document inputs. WebSocket messaging with read receipts, heartbeats and reconnect handling. OTP and QR SSO, audio/video calling, web push, Razorpay checkout.</span></div>
+<div className="row"><b>Result</b><span style={{"color": "#3A3750"}}>In production for a product serving 1,000+ users, with 30+ reusable enterprise modules.</span></div>
+<div style={{"display": "flex", "gap": "8px", "flexWrap": "wrap", "marginTop": "12px"}}><span className="tag">Next.js</span><span className="tag">TypeScript</span><span className="tag">WebSockets</span><span className="tag">WebRTC</span><span className="tag">Zustand</span></div>
+</div></div></section>
 
-  useEffect(() => () => window.clearTimeout(copyTimer.current), [])
+<section id="fullstack" style={{"position": "relative", "maxWidth": "1320px", "margin": "0 auto", "padding": "72px 32px 24px"}}>
+<div className="eyebrow">Full-stack and AI · Case study</div>
+<h2 style={{"fontSize": "40px", "lineHeight": "1.1", "marginTop": "12px"}}>ResolveAI: an AI-assisted support and incident platform</h2>
+<p style={{"color": "#565268", "fontSize": "17px", "maxWidth": "720px", "margin": "14px 0 0"}}>A MERN support-ticket app that I am evolving step by step into an AI platform. Each item below is marked Built or Planned, so you can see exactly what works today.</p>
+<div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(380px,1fr))", "gap": "32px", "marginTop": "36px", "alignItems": "start"}}>
+<div style={{"display": "flex", "flexDirection": "column", "gap": "24px"}}>
+<div className="card" style={{"padding": "28px"}}><div style={{"fontSize": "13px", "fontWeight": "600", "color": "#565268", "marginBottom": "14px"}}>Architecture</div>
+<div style={{"display": "flex", "gap": "10px", "flexWrap": "wrap", "alignItems": "center"}}><div className="bxd">React + TypeScript</div><span>→</span><div className="bxd">Node + Express API</div><span>→</span><div className="bxd">MongoDB Atlas</div></div>
+<div style={{"display": "flex", "gap": "10px", "flexWrap": "wrap", "alignItems": "center", "marginTop": "12px"}}><div className="bxd bxp">FastAPI AI service<br/><span style={{"fontWeight": "500", "fontSize": "12px"}}>planned</span></div><span>→</span><div className="bxd bxp">LLM · RAG · Agents<br/><span style={{"fontWeight": "500", "fontSize": "12px"}}>planned</span></div></div></div>
+<div className="card" style={{"overflow": "hidden"}}><div className="bar"><span className="dot"></span><span className="dot"></span><span className="dot"></span><span className="mono" style={{"marginLeft": "12px", "fontSize": "12px", "color": "#7B7790"}}>Ticket detail · target design</span></div>
+<div style={{"padding": "22px"}}><div style={{"display": "flex", "justifyContent": "space-between", "gap": "12px", "flexWrap": "wrap"}}><b>Payment deducted but subscription inactive</b><span className="st plan">AI · planned</span></div>
+<div style={{"display": "flex", "gap": "8px", "flexWrap": "wrap", "marginTop": "12px"}}><span className="tag">Category: Billing</span><span className="tag">Priority: High</span><span className="tag">Team: Billing Support</span></div>
+<div style={{"marginTop": "14px", "padding": "14px", "borderRadius": "12px", "background": "#F4F1FF", "fontSize": "14px", "color": "#3A3750"}}>Suggested reply: We found your payment and are activating your plan now.</div>
+<div style={{"display": "flex", "gap": "8px", "marginTop": "12px"}}><span className="btn" style={{"minHeight": "36px", "padding": "0 14px", "fontSize": "13px", "background": "#4F36D1", "color": "#fff"}}>Accept</span><span className="btn" style={{"minHeight": "36px", "padding": "0 14px", "fontSize": "13px", "border": "1px solid #D4D1E3"}}>Edit</span><span className="btn" style={{"minHeight": "36px", "padding": "0 14px", "fontSize": "13px", "border": "1px solid #D4D1E3"}}>Reject</span></div></div></div>
+</div>
+<div className="card" style={{"padding": "8px 28px"}}>
+<div className="row" style={{"borderTop": "0", "gridTemplateColumns": "1fr auto"}}><span>React + TypeScript frontend: ticket list, details, create and update</span><span className="st built">Built</span></div>
+<div className="row" style={{"gridTemplateColumns": "1fr auto"}}><span>Express REST API with ticket CRUD and error handling</span><span className="st built">Built</span></div>
+<div className="row" style={{"gridTemplateColumns": "1fr auto"}}><span>MongoDB Atlas and Mongoose models, deployed on Vercel and Render</span><span className="st built">Built</span></div>
+<div className="row" style={{"gridTemplateColumns": "1fr auto"}}><span>JWT authentication and role-based access (Customer, Agent, Admin)</span><span className="st plan">Planned</span></div>
+<div className="row" style={{"gridTemplateColumns": "1fr auto"}}><span>FastAPI service with LLM ticket classification and summaries</span><span className="st plan">Planned</span></div>
+<div className="row" style={{"gridTemplateColumns": "1fr auto"}}><span>Human-in-the-loop suggested replies for support agents</span><span className="st plan">Planned</span></div>
+<div className="row" style={{"gridTemplateColumns": "1fr auto"}}><span>RAG over company documents with vector search</span><span className="st plan">Planned</span></div>
+<div className="row" style={{"gridTemplateColumns": "1fr auto"}}><span>Tool calling and multi-agent routing</span><span className="st plan">Planned</span></div>
+<div style={{"display": "flex", "gap": "8px", "flexWrap": "wrap", "padding": "16px 0 20px"}}><span className="tag">React</span><span className="tag">TypeScript</span><span className="tag">Node.js</span><span className="tag">Express</span><span className="tag">MongoDB</span><span className="tag">FastAPI</span></div>
+</div></div></section>
 
-  const openProject = (project: Project, button: HTMLButtonElement) => {
-    trigger.current = button
-    setSelected(project)
-  }
-  const toggleMotion = () => {
-    const next = !motionPaused
-    setMotionPaused(next)
-    try { localStorage.setItem('portfolio-motion', next ? 'paused' : 'on') } catch { /* Motion controls also work without storage. */ }
-  }
-  const copyEmail = async () => {
-    window.clearTimeout(copyTimer.current)
-    try {
-      await navigator.clipboard.writeText(recruiterSnapshot.email)
-      setCopyStatus('Email copied')
-    } catch { setCopyStatus('Copy unavailable. Use the email link below.') }
-    copyTimer.current = window.setTimeout(() => setCopyStatus(''), 4000)
-  }
+<section style={{"position": "relative", "maxWidth": "1320px", "margin": "0 auto", "padding": "56px 32px 24px"}}>
+<div className="eyebrow">More work</div>
+<div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(320px,1fr))", "gap": "24px", "marginTop": "20px"}}>
+<button type="button" onClick={() => setSelected(projects.find(p => p.title === "FI Deal") ?? null)} className="card" style={{"padding": "28px", "display": "block"}}><div style={{"display": "flex", "justifyContent": "space-between", "alignItems": "baseline"}}><h3 style={{"fontSize": "22px"}}>FI Deal</h3><span className="st built">Production</span></div><p style={{"margin": "12px 0 18px", "color": "#565268", "fontSize": "15px"}}>Deal-management interface with reusable tables, filtering, pagination and approval workflows.</p><div style={{"display": "flex", "gap": "8px", "flexWrap": "wrap"}}><span className="tag">React</span><span className="tag">TypeScript</span><span className="tag">REST APIs</span></div></button>
+<button type="button" onClick={() => setSelected(projects.find(p => p.title === "AmogaPay") ?? null)} className="card" style={{"padding": "28px", "display": "block"}}><div style={{"display": "flex", "justifyContent": "space-between", "alignItems": "baseline"}}><h3 style={{"fontSize": "22px"}}>AmogaPay</h3><span className="tag">Fintech</span></div><p style={{"margin": "12px 0 18px", "color": "#565268", "fontSize": "15px"}}>Dashboards, OTP and JWT authentication, transaction tables and validated forms.</p><div style={{"display": "flex", "gap": "8px", "flexWrap": "wrap"}}><span className="tag">Next.js</span><span className="tag">React</span><span className="tag">OTP flows</span></div></button>
+</div></section>
 
-  return <div className={`portfolio${pause ? ' motion-paused' : ''}`}>
-    <a className="skip-link" href="#main">Skip to content</a>
-    <header className="site-header">
-      <nav className="shell site-nav" aria-label="Main navigation">
-        <a className="wordmark" href="#top" aria-label="Sateesh Anangi, home"><span className="wordmark-symbol" aria-hidden="true">sa<span>.</span></span><span>Sateesh Anangi</span></a>
-        <div className="site-links"><a href="#work">Work</a><a href="#experience">Experience</a><a href="#resume">Resume</a><a href="#about">About</a></div>
-        <a className="nav-contact" href={`mailto:${recruiterSnapshot.email}`}>Let’s talk <IconArrowUpRight size={16}/></a>
-      </nav>
-    </header>
-    <main id="main">
-      <section className="shell intro" id="top" aria-labelledby="hero-title">
-        <div className="intro-copy">
-          <span className="open-label"><span aria-hidden="true"/> Open to frontend opportunities</span>
-          <p className="intro-name">SATEESH ANANGI <span>/ FRONTEND ENGINEER</span></p>
-          <h1 id="hero-title"><span className="headline-line">Good interfaces.</span><span className="headline-line headline-accent">Serious engineering<span className="headline-dot">.</span></span></h1>
-          <p className="intro-description"><strong>3+ years turning complex product ideas into clear, usable web experiences.</strong> I build with React, Next.js, and TypeScript — from real-time AI chat to enterprise dashboards.</p>
-          <div className="intro-buttons">
-            <a className="action-button" href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf"><IconDownload size={17}/> Download resume <span className="button-format">PDF</span></a>
-            <a className="text-button" href="#work">Explore my work <IconArrowUpRight size={18}/></a>
-          </div>
-          <ul className="hero-core-stack" aria-label="Production frontend skills">{['React', 'Next.js', 'TypeScript', 'WebSockets'].map(tech => <li key={tech}>{tech}</li>)}</ul>
-          <div className="intro-socials"><span>Hyderabad, India <span aria-hidden="true">↗</span> Remote / hybrid</span><div><a href={recruiterSnapshot.github} target="_blank" rel="noreferrer" aria-label="Sateesh on GitHub"><IconGithub size={18}/></a><a href={recruiterSnapshot.linkedIn} target="_blank" rel="noreferrer" aria-label="Sateesh on LinkedIn"><IconLinkedin size={18}/></a><a href={`mailto:${recruiterSnapshot.email}`} aria-label="Email Sateesh"><IconMail size={18}/></a></div></div>
-        </div>
-        <div className="hero-evidence"><FeaturedBuild onOpenProject={openProject}/><p className="hero-evidence-note"><span aria-hidden="true">↳</span> A little of what I build. A lot of attention to detail.</p></div>
-        <div className="hero-bottom"><a href="#overview">The quick introduction <span aria-hidden="true">↓</span></a><button className="motion-toggle" onClick={toggleMotion} aria-pressed={pause} disabled={reducedMotion}>{reducedMotion ? 'Reduced motion enabled' : motionPaused ? 'Enable animations' : 'Pause animations'} <span aria-hidden="true">{pause ? '▷' : 'Ⅱ'}</span></button></div>
-      </section>
+<section id="experience" style={{"position": "relative", "maxWidth": "1320px", "margin": "0 auto", "padding": "56px 32px 24px"}}>
+<div className="eyebrow">Experience</div>
+<div style={{"marginTop": "20px", "borderTop": "1px solid #E3E1EC"}}>
+<div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(260px,1fr))", "gap": "24px", "padding": "28px 0", "borderBottom": "1px solid #E3E1EC"}}><div style={{"fontSize": "14px", "color": "#565268"}}>Jun 2025 – Present</div><div style={{"gridColumn": "span 2"}}><h3 style={{"fontSize": "20px", "letterSpacing": "-0.02em"}}>Frontend Developer · My Hub Technologies</h3><p style={{"margin": "10px 0 0", "color": "#3A3750", "maxWidth": "680px"}}>Own the Aavtar AI web frontend: streaming chat, WebSocket messaging, calling, SSO and 30+ reusable enterprise CRUD modules with tables, forms, pagination and role-based screens.</p></div></div>
+<div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(260px,1fr))", "gap": "24px", "padding": "28px 0", "borderBottom": "1px solid #E3E1EC"}}><div style={{"fontSize": "14px", "color": "#565268"}}>Apr 2023 – Mar 2025</div><div style={{"gridColumn": "span 2"}}><h3 style={{"fontSize": "20px", "letterSpacing": "-0.02em"}}>Software Developer · Yenmin Communications</h3><p style={{"margin": "10px 0 0", "color": "#3A3750", "maxWidth": "680px"}}>Built React screens with Redux Toolkit state and Axios interceptors, and translated Figma designs into responsive Tailwind CSS interfaces with backend and QA teams.</p></div></div>
+</div></section>
 
-      <section className="proof-band" aria-label="Experience at a glance"><div className="shell proof-row">
-        {recruiterSnapshot.keyMetrics.map(metric => <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}
-      </div></section>
+<section id="skills" style={{"position": "relative", "maxWidth": "1320px", "margin": "0 auto", "padding": "56px 32px 80px"}}>
+<div className="eyebrow">Skills</div>
+<h2 style={{"fontSize": "34px", "lineHeight": "1.1", "marginTop": "12px"}}>What I use in production, and what I am building.</h2>
+<div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(250px,1fr))", "gap": "20px", "marginTop": "28px"}}>
+<div className="card" style={{"padding": "24px"}}><span className="st built">Production</span><h3 style={{"fontSize": "17px", "marginTop": "12px"}}>Frontend</h3><p style={{"margin": "8px 0 0", "color": "#565268", "fontSize": "15px"}}>React, Next.js, TypeScript, JavaScript (ES6+), Tailwind CSS, Redux Toolkit, Zustand, React Query, WebSockets, WebRTC</p></div>
+<div className="card" style={{"padding": "24px"}}><span className="st built">Hands-on</span><h3 style={{"fontSize": "17px", "marginTop": "12px"}}>MERN backend</h3><p style={{"margin": "8px 0 0", "color": "#565268", "fontSize": "15px"}}>Node.js, Express, MongoDB, Mongoose, REST API design, Axios, Razorpay, Firebase Cloud Messaging</p></div>
+<div className="card" style={{"padding": "24px"}}><span className="st plan">Building</span><h3 style={{"fontSize": "17px", "marginTop": "12px"}}>AI engineering</h3><p style={{"margin": "8px 0 0", "color": "#565268", "fontSize": "15px"}}>Python, FastAPI, LLM APIs, prompt engineering, structured outputs, embeddings, vector search, RAG, tool calling, AI agents</p></div>
+<div className="card" style={{"padding": "24px"}}><span className="st built">Tools</span><h3 style={{"fontSize": "17px", "marginTop": "12px"}}>Workflow</h3><p style={{"margin": "8px 0 0", "color": "#565268", "fontSize": "15px"}}>Git, GitHub, Vercel, Render, MongoDB Atlas, Figma. Next: Docker and CI/CD basics</p></div>
+</div></section>
 
-      <section className="shell recruiter-overview section-space" id="overview" aria-labelledby="overview-title">
-        <div className="section-heading"><div><p className="eyebrow">01 / THE QUICK INTRODUCTION</p><h2 id="overview-title">The experience behind the interface.</h2></div><p>Production frontend depth.<br/>Full-stack curiosity. Product ownership.</p></div>
-        <div className="capability-grid">{[
-          { index: '01', title: 'AI products people can use.', text: 'Streaming responses, Markdown and code, document inputs, and generation progress. Frontend integrations that make complex AI workflows understandable.', tags: ['Aavtor AI', 'Production'] },
-          { index: '02', title: 'Real-time, without the friction.', text: 'WebSocket messaging with reconnect handling and read receipts, WebRTC calling interfaces, and web push notifications. Built for the states between the happy paths.', tags: ['WebSockets', 'WebRTC', 'FCM'] },
-          { index: '03', title: 'Built once. Used across products.', text: '30+ enterprise modules using reusable tables and forms, search, filtering, pagination, and role-based access. From Figma designs through API integration.', tags: ['Reusable UI', 'Enterprise workflows'] },
-        ].map(item => <article className="capability" data-reveal key={item.index}><span className="capability-index">{item.index} <span aria-hidden="true">↗</span></span><h3>{item.title}</h3><p>{item.text}</p><div className="capability-tags">{item.tags.map(tag => <span key={tag}>{tag}</span>)}</div></article>)}</div>
-      </section>
-
-      <section className="shell work-section section-space" id="work" aria-labelledby="work-title">
-        <div className="section-heading"><div><p className="eyebrow">02 / SELECTED WORK</p><h2 id="work-title">Less talk. More shipped.</h2></div><p>A closer look at the products,<br/>the problems, and my contribution.</p></div>
-        <div className="work-filters" aria-label="Filter projects">{filters.map(([key, label]) => <button key={key} aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}{key === 'all' && <span>{projects.length.toString().padStart(2, '0')}</span>}</button>)}</div>
-        <div className="work-grid">{projects.filter(project => filter === 'all' || project.category === filter).map((project, index) => <article className={`work-card project-${project.id}`} key={project.id} data-reveal>
-          <button className="work-art" onClick={event => openProject(project, event.currentTarget)} aria-label={`Read ${project.title} case study`}><ProjectVisual id={project.id}/><span className="art-label">{project.category === 'fullstack' ? 'PERSONAL / IN DEVELOPMENT' : 'PROFESSIONAL WORK'}</span><span className="art-index">0{index + 1}</span><span className="project-hover-label">Inside the project <IconArrowUpRight size={16}/></span></button>
-          <div className="work-info"><div className="project-title-row"><h3>{project.title}</h3><span className="project-status">{project.category === 'fullstack' ? 'MERN · Hands-on' : project.category === 'enterprise' ? 'Fintech' : 'Production'}</span></div><p>{project.description}</p><div className="work-tech">{project.current.slice(0, 4).map(tech => <span key={tech}>{tech}</span>)}</div><div className="work-links"><button onClick={event => openProject(project, event.currentTarget)}>Read case study <IconArrowUpRight size={15}/></button><div>{project.live && <a href={project.live} target="_blank" rel="noreferrer">{project.liveLabel || 'Live site'} <IconArrowUpRight size={14}/></a>}{project.github && <a href={project.github} target="_blank" rel="noreferrer" aria-label={`${project.title} source code on GitHub`}><IconGithub size={16}/> Code</a>}</div></div></div>
-        </article>)}</div>
-      </section>
-
-      <section className="shell experience-section section-space" id="experience" aria-labelledby="experience-title">
-        <div className="section-heading"><div><p className="eyebrow">03 / EXPERIENCE</p><h2 id="experience-title">From design to production.</h2></div><a className="text-button" href="#resume">Read the full resume <IconArrowUpRight size={16}/></a></div>
-        <div className="experience-timeline">{experience.map((job, index) => <article className="experience-row" key={job.company} data-reveal><div className="experience-meta"><span className="job-number">0{index + 1}</span><span className="job-period">{job.period}</span>{index === 0 && <span className="current-role"><span aria-hidden="true"/> Current role</span>}</div><div className="experience-detail"><h3>{job.role}</h3><span className="job-company">{job.company}</span><p>{job.summary}</p><ul className="experience-highlights">{job.highlights.map(item => <li key={item}>{item}</li>)}</ul><div className="work-tech">{job.techStack.map(tech => <span key={tech}>{tech}</span>)}</div></div></article>)}</div>
-      </section>
-
-      <section className="resume-section-wrap" id="resume" aria-labelledby="resume-section-title"><div className="shell section-space">
-        <div className="section-heading"><div><p className="eyebrow">04 / THE RESUME</p><h2 id="resume-section-title">Everything in one place.</h2></div><p>The details, ready for your next step.</p></div>
-        <div className="resume-layout"><aside className="resume-sidebar"><span className="resume-file-icon" aria-hidden="true">SA<span>.pdf</span></span><h3>A quick read.<br/> A clear picture.</h3><p>Experience, technical skills, selected projects, and education in a clean, single-column document.</p><a className="action-button" href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf"><IconDownload size={16}/> Download PDF</a><a className="text-button" href="/resume.txt" download="Sateesh-Anangi-Resume.txt">Plain text version <IconArrowUpRight size={15}/></a><a className="text-button" href={recruiterSnapshot.resumeUrl} target="_blank" rel="noreferrer">Open PDF in a new tab <IconArrowUpRight size={15}/></a><div className="resume-sidebar-note"><IconCheck size={16}/><p>Selectable text. Standard headings.<br/>Easy to read, save, and share.</p></div></aside><div className="resume-paper"><div className="resume-paper-topline"><span>RESUME / SATEESH ANANGI</span><span aria-hidden="true">↗</span></div><ResumeDocument/></div></div>
-      </div></section>
-
-      <section className="shell about-section section-space" id="about" aria-labelledby="about-title"><div className="about-copy"><p className="eyebrow">05 / ALWAYS BUILDING</p><h2 id="about-title">Frontend is my core.<br/><span>Curiosity keeps it moving.</span></h2><p>I enjoy the point where engineering meets the person using the product: a response that arrives clearly, a form that explains itself, a complicated workflow that finally feels simple.</p><p>My professional work is frontend engineering. With ResolveAI, I’m building hands-on experience across MongoDB, Express, React, and Node.js. Python, FastAPI, RAG, and AI agents are the next steps.</p><a className="text-button" href={recruiterSnapshot.github} target="_blank" rel="noreferrer">Follow what I’m building <IconGithub size={17}/></a></div><div className="skill-list">{skillGroups.map(group => <article key={group.title}><div className="skill-heading"><h3>{group.title}</h3><span className={`skill-level level-${group.level.toLowerCase().replace(' ', '-')}`}>{group.level === 'Building next' ? 'Planned / learning' : group.level}</span></div><p>{group.description}</p><ul>{group.skills.map(skill => <li key={skill}>{skill}</li>)}</ul></article>)}</div></section>
-
-      <section className="shell contact-section" id="contact" aria-labelledby="contact-title" data-reveal><div><p className="eyebrow">LET’S BUILD SOMETHING USEFUL.</p><h2 id="contact-title">Your next frontend<br/>engineer<span>?</span></h2><p>Hiring for React, Next.js, or TypeScript?<br/>I’d love to hear about the team and the challenge.</p><div className="contact-actions"><a className="action-button" href={`mailto:${recruiterSnapshot.email}?subject=Frontend%20Engineering%20Opportunity`}>Let’s talk <IconArrowUpRight size={18}/></a><a className="text-button" href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf">Get my resume <IconDownload size={16}/></a></div></div><div className="contact-details"><span className="contact-location">HYDERABAD, INDIA / OPEN TO REMOTE</span><a className="contact-email" href={`mailto:${recruiterSnapshot.email}`}>{recruiterSnapshot.email}</a><button className="copy-email" onClick={copyEmail}>{copyStatus === 'Email copied' ? <IconCheck size={14}/> : <IconCopy size={14}/>} Copy email</button><span className="copy-status" role="status" aria-live="polite">{copyStatus}</span><div className="contact-socials"><a href={recruiterSnapshot.linkedIn} target="_blank" rel="noreferrer">LinkedIn <IconArrowUpRight size={15}/></a><a href={recruiterSnapshot.github} target="_blank" rel="noreferrer">GitHub <IconArrowUpRight size={15}/></a></div></div></section>
-    </main>
-    <footer className="shell site-footer"><span>© {new Date().getFullYear()} Sateesh Anangi</span><span>Designed with intent. Built with React.</span><a href="#top">Back to top ↑</a></footer>
-    <dialog className="project-dialog" ref={dialog} aria-labelledby="case-study-title" onCancel={() => setSelected(null)}><CaseStudyModal project={selected} onClose={() => setSelected(null)}/></dialog>
-  </div>
+<section id="contact" style={{"background": "#12111A", "color": "#fff", "position": "relative"}}>
+<div style={{"maxWidth": "1320px", "margin": "0 auto", "padding": "80px 32px", "display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(340px,1fr))", "gap": "40px", "alignItems": "end"}}>
+<div><div style={{"fontSize": "12px", "fontWeight": "600", "letterSpacing": ".14em", "textTransform": "uppercase", "color": "#B7A6FF"}}>Contact</div><h2 style={{"fontSize": "44px", "lineHeight": "1.08", "marginTop": "14px", "color": "#fff"}}>Hiring for frontend, full-stack (MERN) or AI application roles?</h2></div>
+<div><p style={{"color": "#B9B4CE", "margin": "0 0 24px", "fontSize": "17px"}}>I'm happy to walk through any project, the code, or the decisions behind it.</p><div style={{"display": "flex", "gap": "12px", "flexWrap": "wrap"}}><a href={`mailto:${recruiterSnapshot.email}`} className="btn" style={{"background": "#fff", "color": "#12111A"}}>sateeshanangi80@gmail.com</a><a href={recruiterSnapshot.resumeUrl} download="Sateesh-Anangi-Frontend-Engineer-Resume.pdf" className="btn" style={{"background": "#4F36D1", "color": "#fff"}}>Download resume</a><a href={recruiterSnapshot.linkedIn} className="btn" style={{"border": "1px solid #3A3650", "color": "#fff"}}>LinkedIn</a><a href={recruiterSnapshot.github} className="btn" style={{"border": "1px solid #3A3650", "color": "#fff"}}>GitHub</a></div></div>
+</div></section>
+</main><footer style={{"background": "#12111A", "color": "#8F8AA8", "fontSize": "13px", "padding": "20px 32px 28px", "textAlign": "center", "borderTop": "1px solid #2A2740", "position": "relative"}}>© 2026 Sateesh Anangi · Frontend, MERN and AI application engineering</footer>
+</div>
+<dialog className="project-dialog" ref={dialog} aria-labelledby="case-study-title" onCancel={() => setSelected(null)}><CaseStudyModal project={selected} onClose={() => setSelected(null)}/></dialog></>
 }
