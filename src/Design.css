@@ -12,7 +12,7 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:-0.03em}
 .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#4F36D1}
 .mono{font-family:ui-monospace,Menlo,monospace}
 .row{display:grid;grid-template-columns:130px 1fr;gap:20px;padding:15px 0;border-top:1px solid #ECEAF3}
-.st{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.st{display:inline-flex;align-items:center;justify-content:center;align-self:center;justify-self:end;width:max-content;height:26px;line-height:1;padding:0 10px;font-size:11px;font-weight:600;border-radius:999px;white-space:nowrap;box-sizing:border-box}
 .built{background:#E4F6EC;color:#14693F}
 .plan{border:1px dashed #A9A4C0;color:#565268;background:#fff}
 .role{font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;border:1px solid #D4D1E3;background:#fff}
