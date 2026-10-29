@@ -46,7 +46,7 @@ export const recruiterSnapshot = {
     resumeData.summary,
   keyMetrics: [
     { value: '3+', label: 'Years of experience', subtext: 'React, Next.js & TypeScript' },
-    { value: '1,000+', label: 'Product users', subtext: 'Aavtor AI' },
+    { value: 'AI + live', label: 'Product interfaces', subtext: 'Aavtor AI frontend and integrations' },
     { value: '30+', label: 'Enterprise modules', subtext: 'Reusable tables, forms & workflows' },
     { value: 'AI + real-time', label: 'Production interfaces', subtext: 'Streaming chat, messaging & calls' },
   ],
@@ -54,7 +54,7 @@ export const recruiterSnapshot = {
     {
       title: 'Production AI interfaces',
       description:
-        'Built Aavtor AI web experiences for a product serving 1,000+ users: streaming chat, code rendering, document inputs, and image-generation progress.',
+        'Built Aavtor AI web experiences with streaming chat, code rendering, document inputs, and image-generation progress.',
       icon: 'sparkles',
     },
     {
@@ -177,7 +177,9 @@ export const projects: Project[] = [
         "Streaming formatted AI responses with document inputs and generation progress.",
         "Active Tasks and marketplace results that lead into the relevant conversation.",
         "Personal and business experiences, catalog tools, and Customer Care flows.",
-        "WebSocket messaging, WebRTC calling interfaces, and backend-verified subscription flows."
+        "WebSocket messaging with read receipts, heartbeats and reconnect handling, plus calling and checkout integrations.",
+        "Next.js server routes keep partner API credentials server-side.",
+        "Automated regression coverage for shared UI and API integrations, including loading, retry, filtering and pagination states."
       ],
       "architecture": "Next.js / React web client → application APIs & real-time services → AI responses, discovery, tasks & conversations"
     }
